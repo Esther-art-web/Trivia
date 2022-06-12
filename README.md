@@ -71,12 +71,12 @@ Trivia uses some of the standard HTTP status codes to indicate the success or fa
 Codes in the category of `2xx` represent `Success`. Codes in the category of `3xx` represent `Redirection`. Codes in the category of `4xx` represent ` Client Error `(i.e error causes by input data). Codes in the category of `5xx` represent `Server Error` (i.e error with Trivia servers)
 
 #### Status codes and messages 
-`200` - **OK**   --> Everything went as expected__
-`400` - **Bad Request**    --> The request was unacceptable__
-`404`  -->  **Not Found**    --> Request resouce not found__
-`405`  -->  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint__
-`422`  -->  **Unprocessable Entity**   --> Request argument/body syntax is correct, but unable to process it__
-`500`  -->  **Internal Server Error**   --> Something went wrong with Trivia server__
+`200` - **OK**   --> Everything went as expected\
+`400` - **Bad Request**    --> The request was unacceptable\
+`404`  -->  **Not Found**    --> Request resouce not found\
+`405`  -->  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint\
+`422`  -->  **Unprocessable Entity**   --> Request argument/body syntax is correct, but unable to process it\
+`500`  -->  **Internal Server Error**   --> Something went wrong with Trivia server
 
 ### Resource Endpoint Library
 `GET '/categories' `

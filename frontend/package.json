@@ -6,6 +6,7 @@
   "dependencies": {
     "corsproxy": "^1.5.0",
     "jquery": "^3.4.1",
+    "nodemon": "^2.0.16",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",
@@ -13,6 +14,7 @@
   },
   "scripts": {
     "start": "node node_modules/react-scripts/scripts/start.js",
+    "dev": "nodemon node_modules/react-scripts/scripts/start.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

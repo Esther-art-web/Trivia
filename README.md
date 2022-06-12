@@ -51,39 +51,40 @@ By making notes ahead of time, you will practice the core skill of being able to
 
 <!-- API Documentation -->
 
-## Introduction
-### API Reference
+## API Reference
+
+### Introduction
 The Trivia API uses resource-oriented URLs, accepts JSON formatted, form encoded request bodies and returns **JSON-encoded** responses, using correct HTTP response status codes.
 
 Trivia API was created using ***Test Driven Development*** (TDD), hence you can also use this API in test mode without interacting with your main development database
 
 
-## Getting Started
-### Base URL
+### Getting Started
+#### Base URL
 ` http://127.0.0.1:5000/ `
 
-### API keys / Authentication
+#### API keys / Authentication
 None
 
-## Errors
-Trivia uses some of the standard HTTP status codes to verify indicate the success or failure of an API request.
+### Errors
+Trivia uses some of the standard HTTP status codes to indicate the success or failure of an API request.
 Codes in the category of `2xx` represent `Success`. Codes in the category of `3xx` represent `Redirection`. Codes in the category of `4xx` represent ` Client Error `(i.e error causes by input data). Codes in the category of `5xx` represent `Server Error` (i.e error with Trivia servers)
 
-### Status codes and messages 
-`200` - **OK**   --> Everything went as expected
-`400` - **Bad Request**    --> The request was unacceptable
-`404`  -->  **Not Found**    --> Request resouce not found
-`405`  -->  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint
-`422`  -->  **Unprocessable Entity**   --> 
-`500`  -->  **Internal Server Error**   --> Something went wrong with Trivia server
+#### Status codes and messages 
+`200` - **OK**   --> Everything went as expected__
+`400` - **Bad Request**    --> The request was unacceptable__
+`404`  -->  **Not Found**    --> Request resouce not found__
+`405`  -->  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint__
+`422`  -->  **Unprocessable Entity**   --> Request argument/body syntax is correct, but unable to process it__
+`500`  -->  **Internal Server Error**   --> Something went wrong with Trivia server__
 
-## Resource Endpoint Library
-`GET '/api/v1.0/categories' `
+### Resource Endpoint Library
+`GET '/categories' `
 - This fetches a dictionary of all the categories from the database in which the keys are the ids and the values are the types.
 - Request Arguments: None
 - Returns: An object with a single key, `categories` that maps to an object of `id: category_type` pairs.
 
-### Sample
+#### Sample
 
 `curl http://127.0.0.1:5000/categories`
 
@@ -100,60 +101,77 @@ Response
         }
     }
 ```
+---
+`POST '/categories' `
+- This creates a new category provided it does not alraedy exist
+- Request Arguments: An object with a single key `"type" : "type_value"` 
+- Returns: An object with a single key of the new category id.
 
+#### Sample
+
+`curl http://127.0.0.1:5000/categories -X POST -H "Content-Type:application/json" -d "{\"type\" : \"Fashion\"}"`
+
+Response
+`{"category_id": 8}`
+
+---
 `GET '/categories/${category_id}/questions'`
 - This fetches all the questions of a particular category. The route variable `category_id` represents the id of the category.
 - Request Argument(s): `category_id` - integer
 - Returns: An object of three keys. `questions` which maps to the array of all the questions that have a `category` which is equal of `category_id`. `totalQuestions` which maps to the number of items in the `questions` array. `currentCategory` maps to .
 
-### Sample
+#### Sample
 URL
 `curl http://127.0.0.1:5000/categories/2/questions`
 
 Response
 ```
-{
-  "currentCategory": "History", 
-  "questions": [
     {
-      "answer": "Escher", 
-      "category": 2, 
-      "difficulty": 1, 
-      "id": 16, 
-      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
-    }, 
-    {
-      "answer": "Mona Lisa", 
-      "category": 2, 
-      "difficulty": 3, 
-      "id": 17, 
-      "question": "La Giaconda is better known as what?"
-    }, 
-    {
-      "answer": "One", 
-      "category": 2, 
-      "difficulty": 4, 
-      "id": 18, 
-      "question": "How many paintings did Van Gogh sell in his lifetime?"
-    }, 
-    {
-      "answer": "Jackson Pollock", 
-      "category": 2, 
-      "difficulty": 2, 
-      "id": 19, 
-      "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        "currentCategory": "History",
+        "questions": [
+            {
+                "answer": "Escher",
+                "category": 2,
+                "difficulty": 1,
+                "id": 16,
+                "question": "Which Dutch graphic artist–initials M C was a creator of optical illusions?",
+                "rating": 1
+            },
+            {
+                "answer": "Mona Lisa",
+                "category": 2,
+                "difficulty": 3,
+                "id": 17,
+                "question": "La Giaconda is better known as what?",
+                "rating": 1
+            },
+            {
+                "answer": "One",
+                "category": 2,
+                "difficulty": 4,
+                "id": 18,
+                "question": "How many paintings did Van Gogh sell in his lifetime?",
+                "rating": 1
+            },
+            {
+                "answer": "Jackson Pollock",
+                "category": 2,
+                "difficulty": 2,
+                "id": 19,
+                "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?",
+                "rating": 1
+            }
+        ],
+        "totalQuestions": 4
     }
-  ], 
-  "totalQuestions": 4
-}
 ```
-
+---
 `GET '/questions?page=${page_no}' `
 - This fetches a dictionary of `questions` maps to an array of objects of 10 paginated questions. `categories` maps to an object of all the categories present in the `questions` array. `totalQuestions` maps to the count of all the questions.
 - Request Argument(s): `page_no` - integer
 - Returns: An object with 10 paginated questions, total questions, object including all categories, and current category string 
 
-### Sample
+#### Sample
 
 `curl http://127.0.0.1:5000/questions?page=1`
 
@@ -161,106 +179,118 @@ Response
 ```
     {
         "categories": {
-            "3": "Geography", 
-            "4": "History", 
-            "5": "Entertainment", 
+            "3": "Geography",
+            "4": "History",
+            "5": "Entertainment",
             "6": "Sports"
-        }, 
+        },
         "questions": [
             {
-            "answer": "Maya Angelou", 
-            "category": 4, 
-            "difficulty": 2, 
-            "id": 5, 
-            "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
-            }, 
+                "answer": "Maya Angelou",
+                "category": 4,
+                "difficulty": 2,
+                "id": 5,
+                "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?",
+                "rating": 1
+            },
             {
-            "answer": "Muhammad Ali", 
-            "category": 4, 
-            "difficulty": 1, 
-            "id": 9, 
-            "question": "What boxer's original name is Cassius Clay?"
-            }, 
+                "answer": "Muhammad Ali",
+                "category": 4,
+                "difficulty": 1,
+                "id": 9,
+                "question": "What boxer's original name is Cassius Clay?",
+                "rating": 1
+            },
             {
-            "answer": "Apollo 13", 
-            "category": 5, 
-            "difficulty": 4, 
-            "id": 2, 
-            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
-            }, 
+                "answer": "Apollo 13",
+                "category": 5,
+                "difficulty": 4,
+                "id": 2,
+                "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?",
+                "rating": 1
+            },
             {
-            "answer": "Tom Cruise", 
-            "category": 5, 
-            "difficulty": 4, 
-            "id": 4, 
-            "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
-            }, 
+                "answer": "Tom Cruise",
+                "category": 5,
+                "difficulty": 4,
+                "id": 4,
+                "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?",
+                "rating": 1
+            },
             {
-            "answer": "Edward Scissorhands", 
-            "category": 5, 
-            "difficulty": 3, 
-            "id": 6, 
-            "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
-            }, 
+                "answer": "Edward Scissorhands",
+                "category": 5,
+                "difficulty": 3,
+                "id": 6,
+                "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?",
+                "rating": 1
+            },
             {
-            "answer": "Brazil", 
-            "category": 6, 
-            "difficulty": 3, 
-            "id": 10, 
-            "question": "Which is the only team to play in every soccer World Cup tournament?"
-            }, 
+                "answer": "Brazil",
+                "category": 6,
+                "difficulty": 3,
+                "id": 10,
+                "question": "Which is the only team to play in every soccer World Cup tournament?",
+                "rating": 1
+            },
             {
-            "answer": "Uruguay", 
-            "category": 6, 
-            "difficulty": 4, 
-            "id": 11, 
-            "question": "Which country won the first ever soccer World Cup in 1930?"
-            }, 
+                "answer": "Uruguay",
+                "category": 6,
+                "difficulty": 4,
+                "id": 11,
+                "question": "Which country won the first ever soccer World Cup in 1930?",
+                "rating": 1
+            },
             {
-            "answer": "George Washington Carver", 
-            "category": 4, 
-            "difficulty": 2, 
-            "id": 12, 
-            "question": "Who invented Peanut Butter?"
-            }, 
+                "answer": "George Washington Carver",
+                "category": 4,
+                "difficulty": 2,
+                "id": 12,
+                "question": "Who invented Peanut Butter?",
+                "rating": 1
+            },
             {
-            "answer": "Lake Victoria", 
-            "category": 3, 
-            "difficulty": 2, 
-            "id": 13, 
-            "question": "What is the largest lake in Africa?"
-            }, 
+                "answer": "Lake Victoria",
+                "category": 3,
+                "difficulty": 2,
+                "id": 13,
+                "question": "What is the largest lake in Africa?",
+                "rating": 1
+            },
             {
-            "answer": "The Palace of Versailles", 
-            "category": 3, 
-            "difficulty": 3, 
-            "id": 14, 
-            "question": "In which royal palace would you find the Hall of Mirrors?"
+                "answer": "The Palace of Versailles",
+                "category": 3,
+                "difficulty": 3,
+                "id": 14,
+                "question": "In which royal palace would you find the Hall of Mirrors?",
+                "rating": 1
             }
-        ], 
+        ],
         "totalQuestions": 19
     }
 ```
+---
 `POST '/questions'`
 - Sends a request to create a new question.
 - Request Body: An object of question with `"question": "question_value"` key:value pairs
 - Returns: An object with a single value of the question id
 
-### Sample
+#### Sample
 URL
-`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"question\": \"What is the capital of Finland\",\"answer\": \"Helsinki\",\"category\": 3,\"difficulty\": 2}"`
+`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"question\": \"What is the capital of Finland\",\"answer\": \"Helsinki\",\"category\": 3,\"difficulty\": 2,\"rating\":4}"`
 
 Response
-`{"question_id": 26}`
+`{"question_id": 24}`
 
+---
 `POST '/api/v1.0/questions'`
 - Sends a request to search for a question.
 - Request Body: An object with `"searchTerm": "searchTerm_value"` key:value pairs
 - Returns: An object with a current category, an array of questions that matched the search term (case insensitive) and total number of questions returned.
 
-### Sample
+#### Sample
 URL
-`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"searchTerm\": \"capital of Finland\"}"`
+`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"searchTerm\": \"title of the 1990 fantasy\"}"`
 
 Response
 ```
@@ -268,38 +298,47 @@ Response
         "currentCategory": "Entertainment",
         "questions": [
             {
-                "answer": "Helsinki",
-                "category": 3,
-                "difficulty": 2,
-                "id": 26,
-                "question": "What is the capital of Finland"
+                "answer": "Edward Scissorhands",
+                "category": 5,
+                "difficulty": 3,
+                "id": 6,
+                "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?",
+                "rating": 1
             }
         ],
         "totalQuestions": 1
     }
 ```
-
+---
 `POST '/quizzes'`
 - Fetches a random question from a given category provided it is not part of the previous three questions
 - Request Body:  An object of the quiz category and an array of the previous three questions
 - Returns: An single object of a random question in the given category
 
-### Sample
+#### Sample
 URL
-`curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d "{\"previous_questions\" : [4, 6, 9],\"quiz_category\" : \"Entertainment\"}"`
+`curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d "{\"previous_questions\" : [4, 6, 12],\"quiz_category\" : \"Science\"}"`
 
 Response 
 ```
-    {
+   {
         "question": {
-            "answer": "Apollo 13",
-            "category": 5,
+            "answer": "The Liver",
+            "category": 1,
             "difficulty": 4,
-            "id": 2,
-            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?",
+            "rating": 1
         }
     }
 ```
+
+### Deployment
+None
+
+### Authors
+Udacity
+Ibeh Esther
 
 
 

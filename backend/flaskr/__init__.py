@@ -1,3 +1,4 @@
+from werkzeug.exceptions import HTTPException
 import os
 from flask import Flask, request, abort, jsonify, json
 # from flask_sqlalchemy import SQLAlchemy
@@ -46,6 +47,31 @@ def create_app(test_config=None):
             abort(405)        
         return jsonify({"categories" : categories})
 
+    @app.route('/categories', methods=['POST'])
+    def create_new_category():
+        new_category_id = None
+        try:
+            categories = Category.query.all()
+            category_type = request.get_json()['type']
+            if category_type:
+                for category in categories:
+                    if category_type == category.type:
+                        abort(422)
+                category = Category(type=category_type)
+                category.insert()
+                new_category_id = category.id
+            else:
+                abort()    
+        except Exception as e:
+            db.session.rollback()
+            if isinstance(e, HTTPException):
+                abort(e.code)
+            else:
+                abort(400)
+        finally:
+            db.session.close()
+        return jsonify({"category_id" : new_category_id})    
+    
     # """
     # @TODO:
     # Create an endpoint to handle GET requests for questions,
@@ -71,7 +97,8 @@ def create_app(test_config=None):
                         'question' : page_question.question,
                         'answer' : page_question.answer,
                         'difficulty' : page_question.difficulty,
-                        'category' : page_question.category
+                        'category' : page_question.category,
+                        'rating' : page_question.rating
                     }
                     category = Category.query.get(page_question.category)
                     categories[page_question.category] = category.type
@@ -137,7 +164,8 @@ def create_app(test_config=None):
                         'question' : question.question,
                         'answer' : question.answer,
                         'difficulty' : question.difficulty,
-                        'category' : question.category
+                        'category' : question.category,
+                        'rating' : question.rating
                     }
                     res.append(_question)
 
@@ -155,11 +183,11 @@ def create_app(test_config=None):
                     question=body.get('question'),
                     answer=body.get('answer'),
                     category= body.get('category'),
-                    difficulty=body.get('difficulty')
+                    difficulty=body.get('difficulty'),
+                    rating= body.get('rating')
                     )
                 question.insert()
                 res_question_id = question.id
-                
             except Exception:
                 db.session.rollback()
                 abort(400)
@@ -201,7 +229,8 @@ def create_app(test_config=None):
                         'question' : question.question,
                         'answer' : question.answer,
                         'difficulty' : question.difficulty,
-                        'category' : question.category
+                        'category' : question.category,
+                        'rating' : question.rating
                     }
                     res.append(_question)
         else:
@@ -240,7 +269,8 @@ def create_app(test_config=None):
                         'question' : selected_question.question,
                         'answer' : selected_question.answer,
                         'difficulty' : selected_question.difficulty,
-                        'category' : selected_question.category
+                        'category' : selected_question.category,
+                        'rating' : selected_question.rating
                     }
             else:
                 abort(404)
@@ -256,7 +286,7 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         return jsonify({
-            'Success' : True
+            'message' : "Welcome to Trivia API Home Page"
         })
     # """
     # @TODO:

@@ -20,7 +20,8 @@ class TriviaTestCase(unittest.TestCase):
             'question' : 'Where is Lekki located',
             'answer' : 'Island',
             'category' : 3,
-            'difficulty' : 1
+            'difficulty' : 1,
+            'rating' : 4
         } 
         setup_db(self.app, self.database_path)
 
@@ -49,7 +50,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
     # Test for get_categories fail due to wrong HTTP method
     def test_405_categories(self):
-        res = self.client().post('/categories')
+        res = self.client().patch('/categories')
         data =json.loads(res.data)
 
         self.assertEqual(res.status_code, 405)
@@ -160,13 +161,40 @@ class TriviaTestCase(unittest.TestCase):
     def test_404_category_not_found(self):
         res = self.client().post('/quizzes',  json = {
             'previous_questions' : [5, 8, 20],
-            'quiz_category' : 'Medicine'
+            'quiz_category' : 'Zoolology'
             })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Not Found')
+
+    # Test for create_new_category pass
+    def test_create_new_category(self):
+        res = self.client().post('/categories', json={'type':'Beauty'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['category_id'])
+
+    # Test for create_new_category fail due to bad request input
+    def test_400_bad_request_parameter(self):
+        res = self.client().post('/categories', json={})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False )    
+        self.assertEqual(data['message'], 'Bad Request') 
+
+    # Test for create_new_category fail due to category type already exists
+    def test_422_category_type_already_exists(self):
+        res = self.client().post('/categories', json={"type" : "Entertainment"})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False )    
+        self.assertEqual(data['message'], 'Unprocessable Entity') 
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

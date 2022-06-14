@@ -89,11 +89,11 @@ URL\
 `curl http://127.0.0.1:5000/api/v1.0/`
 
 Response 
-'''
+```
     {
         "message": "Welcome to Trivia API Home Page"
     }
-'''
+```
 ---
 
 `GET '/api/v1.0/categories' `

@@ -94,6 +94,7 @@ Response
         "message": "Welcome to Trivia API Home Page"
     }
 '''
+---
 
 `GET '/api/v1.0/categories' `
 - This fetches a dictionary of all the categories from the database in which the keys are the ids and the values are the types.

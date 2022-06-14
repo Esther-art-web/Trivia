@@ -21,7 +21,7 @@ class QuizView extends Component {
 
   componentDidMount() {
     $.ajax({
-      url: `/categories`, //TODO: update request URL
+      url: `/api/v1.0/categories`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({ categories: result.categories });
@@ -49,13 +49,13 @@ class QuizView extends Component {
     }
 
     $.ajax({
-      url: '/quizzes', //TODO: update request URL
+      url: '/api/v1.0/quizzes', //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify({
         previous_questions: previousQuestions,
-        quiz_category: this.state.quizCategory,
+        quiz_category: this.state.quizCategory.type,
       }),
       xhrFields: {
         withCredentials: true,

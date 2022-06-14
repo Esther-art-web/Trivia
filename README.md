@@ -61,7 +61,7 @@ Trivia API was created using ***Test Driven Development*** (TDD), hence you can 
 
 ### Getting Started
 #### Base URL
-` http://127.0.0.1:5000/ `
+` http://127.0.0.1:5000 `
 
 #### API keys / Authentication
 None
@@ -73,20 +73,36 @@ Codes in the category of `2xx` represent `Success`. Codes in the category of `3x
 #### Status codes and messages 
 `200` - **OK**   --> Everything went as expected\
 `400` - **Bad Request**    --> The request was unacceptable\
-`404`  -->  **Not Found**    --> Request resouce not found\
-`405`  -->  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint\
-`422`  -->  **Unprocessable Entity**   --> Request argument/body syntax is correct, but unable to process it\
-`500`  -->  **Internal Server Error**   --> Something went wrong with Trivia server
+`404`  -  **Not Found**    --> Request resouce not found\
+`405`  -  **Method Not Allowed**    --> Incorrect HTTP method used for endpoint\
+`422`  -  **Unprocessable Entity**   --> Request argument/body syntax is correct, but unable to process it\
+`500`  -  **Internal Server Error**   --> Something went wrong with Trivia server
 
 ### Resource Endpoint Library
-`GET '/categories' `
+`GET '/api/v1.0/' `
+- Welcome Page
+- Request Arguments: None
+- Returns: An object with a welcome message
+#### Sample
+
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/`
+
+Response 
+'''
+    {
+        "message": "Welcome to Trivia API Home Page"
+    }
+'''
+
+`GET '/api/v1.0/categories' `
 - This fetches a dictionary of all the categories from the database in which the keys are the ids and the values are the types.
 - Request Arguments: None
 - Returns: An object with a single key, `categories` that maps to an object of `id: category_type` pairs.
 
 #### Sample
-
-`curl http://127.0.0.1:5000/categories`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/categories`
 
 Response
 ```
@@ -102,32 +118,32 @@ Response
     }
 ```
 ---
-`POST '/categories' `
+`POST '/api/v1.0/categories' `
 - This creates a new category provided it does not alraedy exist
 - Request Arguments: An object with a single key `"type" : "type_value"` 
 - Returns: An object with a single key of the new category id.
 
 #### Sample
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/categories -X POST -H "Content-Type:application/json" -d "{\"new_category\" : \"Fashion\"}"`
 
-`curl http://127.0.0.1:5000/categories -X POST -H "Content-Type:application/json" -d "{\"type\" : \"Fashion\"}"`
-
-Response
+Response\
 `{"category_id": 8}`
 
 ---
-`GET '/categories/${category_id}/questions'`
+`GET '/api/v1.0/categories/${category_id}/questions'`
 - This fetches all the questions of a particular category. The route variable `category_id` represents the id of the category.
 - Request Argument(s): `category_id` - integer
 - Returns: An object of three keys. `questions` which maps to the array of all the questions that have a `category` which is equal of `category_id`. `totalQuestions` which maps to the number of items in the `questions` array. `currentCategory` maps to .
 
 #### Sample
-URL
-`curl http://127.0.0.1:5000/categories/2/questions`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/categories/2/questions`
 
 Response
 ```
     {
-        "currentCategory": "History",
+        "currentCategory": "Art",
         "questions": [
             {
                 "answer": "Escher",
@@ -166,24 +182,27 @@ Response
     }
 ```
 ---
-`GET '/questions?page=${page_no}' `
+`GET '/api/v1.0/questions?page=${page_no}' `
 - This fetches a dictionary of `questions` maps to an array of objects of 10 paginated questions. `categories` maps to an object of all the categories present in the `questions` array. `totalQuestions` maps to the count of all the questions.
 - Request Argument(s): `page_no` - integer
 - Returns: An object with 10 paginated questions, total questions, object including all categories, and current category string 
 
 #### Sample
-
-`curl http://127.0.0.1:5000/questions?page=1`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/questions?page=1`
 
 Response
 ```
     {
         "categories": {
+            "1": "Science",
+            "2": "Art",
             "3": "Geography",
             "4": "History",
             "5": "Entertainment",
             "6": "Sports"
         },
+        "currentCategory": "",
         "questions": [
             {
                 "answer": "Maya Angelou",
@@ -270,32 +289,32 @@ Response
     }
 ```
 ---
-`POST '/questions'`
+`POST '/api/v1.0/questions'`
 - Sends a request to create a new question.
 - Request Body: An object of question with `"question": "question_value"` key:value pairs
 - Returns: An object with a single value of the question id
 
 #### Sample
-URL
-`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"question\": \"What is the capital of Finland\",\"answer\": \"Helsinki\",\"category\": 3,\"difficulty\": 2,\"rating\":4}"`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/questions -X POST -H "Content-Type:application/json" -d "{\"question\": \"What is the capital of Finland\",\"answer\": \"Helsinki\",\"category\": 3,\"difficulty\": 2,\"rating\":4}"`
 
-Response
+Response\
 `{"question_id": 24}`
 
 ---
 `POST '/api/v1.0/questions'`
 - Sends a request to search for a question.
-- Request Body: An object with `"searchTerm": "searchTerm_value"` key:value pairs
-- Returns: An object with a current category, an array of questions that matched the search term (case insensitive) and total number of questions returned.
+- Request Body: An object with `"searchTerm": "searchTerm_value"`  key:value pair
+- Returns: An object with a current category, an array of questions that matched the search term (case insensitive), current category string and total number of questions returned
 
 #### Sample
-URL
-`curl http://127.0.0.1:5000/questions -X POST -H "Content-Type:application/json" -d "{\"searchTerm\": \"title of the 1990 fantasy\"}"`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/questions -X POST -H "Content-Type:application/json" -d "{\"searchTerm\": \"title of the 1990 fantasy\"}"`
 
 Response
 ```
     {
-        "currentCategory": "Entertainment",
+        "currentCategory": "",
         "questions": [
             {
                 "answer": "Edward Scissorhands",
@@ -310,14 +329,14 @@ Response
     }
 ```
 ---
-`POST '/quizzes'`
+`POST '/api/v1.0/quizzes'`
 - Fetches a random question from a given category provided it is not part of the previous three questions
 - Request Body:  An object of the quiz category and an array of the previous three questions
 - Returns: An single object of a random question in the given category
 
 #### Sample
-URL
-`curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d "{\"previous_questions\" : [4, 6, 12],\"quiz_category\" : \"Science\"}"`
+URL\
+`curl http://127.0.0.1:5000/api/v1.0/quizzes -X POST -H "Content-Type: application/json" -d "{\"previous_questions\" : [4, 6, 12],\"quiz_category\" : \"Science\"}"`
 
 Response 
 ```
@@ -337,7 +356,7 @@ Response
 None
 
 ### Authors
-Udacity
+Udacity\
 Ibeh Esther
 
 

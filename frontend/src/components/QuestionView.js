@@ -22,14 +22,14 @@ class QuestionView extends Component {
 
   getQuestions = () => {
     $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `/api/v1.0/questions?page=${this.state.page}`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
           questions: result.questions,
-          totalQuestions: result.total_questions,
+          totalQuestions: result.totalQuestions,
           categories: result.categories,
-          currentCategory: result.current_category,
+          currentCategory: result.currentCategory,
         });
         return;
       },
@@ -54,8 +54,7 @@ class QuestionView extends Component {
           className={`page-num ${i === this.state.page ? 'active' : ''}`}
           onClick={() => {
             this.selectPage(i);
-          }}
-        >
+          }}>
           {i}
         </span>
       );
@@ -65,13 +64,13 @@ class QuestionView extends Component {
 
   getByCategory = (id) => {
     $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
+      url: `/api/v1.0/categories/${id}/questions`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
           questions: result.questions,
-          totalQuestions: result.total_questions,
-          currentCategory: result.current_category,
+          totalQuestions: result.totalQuestions,
+          currentCategory: result.currentCategory,
         });
         return;
       },
@@ -84,7 +83,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/api/v1.0/questions`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -96,8 +95,8 @@ class QuestionView extends Component {
       success: (result) => {
         this.setState({
           questions: result.questions,
-          totalQuestions: result.total_questions,
-          currentCategory: result.current_category,
+          totalQuestions: result.totalQuestions,
+          currentCategory: result.currentCategory,
         });
         return;
       },
@@ -112,7 +111,7 @@ class QuestionView extends Component {
     if (action === 'DELETE') {
       if (window.confirm('are you sure you want to delete the question?')) {
         $.ajax({
-          url: `/questions/${id}`, //TODO: update request URL
+          url: `/api/v1.0/questions/${id}`, //TODO: update request URL
           type: 'DELETE',
           success: (result) => {
             this.getQuestions();
@@ -168,7 +167,7 @@ class QuestionView extends Component {
               questionAction={this.questionAction(q.id)}
             />
           ))}
-          <div className='pagination-menu'>{this.createPagination()}</div>
+          <div className='pagination-menu'>{this.createPagination()} </div>
         </div>
       </div>
     );

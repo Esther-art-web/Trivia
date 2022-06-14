@@ -17,17 +17,18 @@ def create_app(test_config=None):
     """
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
-    url = '/api/*'
-    cors = CORS(app, resources = {url: {'origins' : '*'}})
+    
+    cors = CORS(app, resources = {r"/api/*": {'origins' : '*'}})
 
     
     # @TODO: Use the after_request decorator to set Access-Control-Allow
     
-    # @app.after_request
-    # def after_request(response):
-    #     response.headers.add("Access-Control-Allow-Origin", "*")
-    #     response.headers.add("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
-    #     response.headers.add("Access-Control-Allow-Headers", 'Content-Type')
+    @app.after_request
+    def after_request(response):
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE")
+        response.headers.add("Access-Control-Allow-Headers", 'Content-Type')
+        return response
 
     # """
     # @TODO:
@@ -35,7 +36,7 @@ def create_app(test_config=None):
     # for all available categories.
     # """
 
-    @app.route('/categories')
+    @app.route('/api/v1.0/categories')
     def get_categories(): 
         try:
             all_categories = Category.query.all()
@@ -47,12 +48,12 @@ def create_app(test_config=None):
             abort(405)        
         return jsonify({"categories" : categories})
 
-    @app.route('/categories', methods=['POST'])
+    @app.route('/api/v1.0/categories', methods=['POST'])
     def create_new_category():
         new_category_id = None
         try:
             categories = Category.query.all()
-            category_type = request.get_json()['type']
+            category_type = request.get_json()['new_category']
             if category_type:
                 for category in categories:
                     if category_type == category.type:
@@ -79,7 +80,7 @@ def create_app(test_config=None):
     # This endpoint should return a list of questions,
     # number of total questions, current category, categories.
 
-    @app.route('/questions')
+    @app.route('/api/v1.0/questions')
     def get_questions_by_page():
         try:
             page = int(request.args.get('page', 1))
@@ -90,6 +91,7 @@ def create_app(test_config=None):
             page_questions = all_questions[start : end]
             questions = []
             categories = {}
+            all_categories = Category.query.all()
             if page_questions:
                 for page_question in page_questions:
                     question = {
@@ -100,18 +102,20 @@ def create_app(test_config=None):
                         'category' : page_question.category,
                         'rating' : page_question.rating
                     }
-                    category = Category.query.get(page_question.category)
-                    categories[page_question.category] = category.type
                     questions.append(question)
             else:
                 abort(404)
+            for category in all_categories:
+                categories[category.id] = category.type
         except Exception:
             abort(404)
         return jsonify({
             'questions' : questions,
             'totalQuestions' : len(all_questions),
-            'categories' : categories
+            'categories' : categories,
+            'currentCategory' : ''
             })
+
 
     # TEST: At this point, when you start the application
     # you should see questions and categories generated,
@@ -124,7 +128,7 @@ def create_app(test_config=None):
     # @TODO:
     # Create an endpoint to DELETE question using a question ID.
 
-    @app.route('/questions/<int:question_id>', methods =['DELETE'])
+    @app.route('/api/v1.0/questions/<int:question_id>', methods =['DELETE'])
     def delete_question(question_id):
         res_question_id = None
         try:
@@ -149,7 +153,7 @@ def create_app(test_config=None):
     # which will require the question and answer text,
     # category, and difficulty score.
 
-    @app.route('/questions', methods = ['POST'])
+    @app.route('/api/v1.0/questions', methods = ['POST'])
     def create_new_question_and_search_question():
         res_question_id=None
         body=request.get_json()
@@ -157,8 +161,10 @@ def create_app(test_config=None):
             search_term = body.get('searchTerm')
             questions = Question.query.filter(Question.question.ilike('%'+search_term+'%')).all()
             res = []
+            current_categories = []
             if questions:
                 for question in questions:
+                    current_category = question.category
                     _question = {
                         'id' : question.id,
                         'question' : question.question,
@@ -171,11 +177,10 @@ def create_app(test_config=None):
 
             else:
                 abort(404)        
-                
             return jsonify({
                 'questions' : res, 
                 'totalQuestions' : len(questions),
-                'currentCategory' : 'Entertainment'
+                'currentCategory' : ''
                 })
         else:     
             try:
@@ -217,7 +222,7 @@ def create_app(test_config=None):
     # """
     # @TODO:
     # Create a GET endpoint to get questions based on category.
-    @app.route('/categories/<int:category_id>/questions')
+    @app.route('/api/v1.0/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
         category = Category.query.get(category_id)
         if category:
@@ -238,7 +243,7 @@ def create_app(test_config=None):
         return jsonify({
             'questions' : res,
             'totalQuestions' : len(questions),
-            'currentCategory' : 'History'
+            'currentCategory' : category.type
             })
     # TEST: In the "List" tab / main screen, clicking on one of the
     # categories in the left column will cause only questions of that
@@ -251,7 +256,7 @@ def create_app(test_config=None):
     # This endpoint should take category and previous question parameters
     # and return a random question within the given category,
     # if provided, and that is not one of the previous questions.
-    @app.route('/quizzes', methods = ['POST'])
+    @app.route('/api/v1.0/quizzes', methods = ['POST'])
     def get_quizzes():
         try:
             body = request.get_json()
@@ -260,18 +265,33 @@ def create_app(test_config=None):
             category = Category.query.filter_by(type=quiz_category).one_or_none()
             if category:
                 questions_in_category = Question.query.filter_by(category = category.id).all()
-                selected_question = random.choice(questions_in_category)
-                while selected_question.id in prev_questions:
+                if questions_in_category:
                     selected_question = random.choice(questions_in_category)
-                else: 
-                    res = {
-                        'id' : selected_question.id,
-                        'question' : selected_question.question,
-                        'answer' : selected_question.answer,
-                        'difficulty' : selected_question.difficulty,
-                        'category' : selected_question.category,
-                        'rating' : selected_question.rating
-                    }
+                    if prev_questions:
+                        while selected_question.id in prev_questions:
+                            selected_question = random.choice(questions_in_category)
+                        else: 
+                            res = {
+                                'id' : selected_question.id,
+                                'question' : selected_question.question,
+                                'answer' : selected_question.answer,
+                                'difficulty' : selected_question.difficulty,
+                                'category' : selected_question.category,
+                                'rating' : selected_question.rating
+                            }
+                            
+                    else:
+                        res = {
+                            'id' : selected_question.id,
+                            'question' : selected_question.question,
+                            'answer' : selected_question.answer,
+                            'difficulty' : selected_question.difficulty,
+                            'category' : selected_question.category,
+                            'rating' : selected_question.rating
+                        }
+                else:
+                    abort(404)            
+
             else:
                 abort(404)
         except Exception:
@@ -283,7 +303,7 @@ def create_app(test_config=None):
     # and shown whether they were correct or not.
     # """
 
-    @app.route('/')
+    @app.route('/api/v1.0/')
     def index():
         return jsonify({
             'message' : "Welcome to Trivia API Home Page"

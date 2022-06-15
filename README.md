@@ -360,6 +360,9 @@ None
 Udacity\
 Ibeh Esther
 
+### New Game Mechanics
+I added more questions to the `backend/triva.psql`, so that each category has enough questions to run through atleast one quiz session.
+
 
 
 

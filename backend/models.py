@@ -1,3 +1,4 @@
+from email.policy import default
 import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
@@ -89,4 +90,23 @@ class Category(db.Model):
             }
 
     def __repr__(self) :
-        return f'< id : {self.id}, type: {self.type} >'       
+        return f'< id : {self.id}, type: {self.type} >'     
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id =db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(), nullable = True, default='Anon')   
+    score = db.Column(db.Integer, nullable= True, default=0)
+
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    def __repr__(self) :
+        return f'< id : {self.id}, name: {self.name}, score: {self.score} >'

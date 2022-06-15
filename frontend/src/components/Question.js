@@ -14,7 +14,7 @@ class Question extends Component {
   }
 
   render() {
-    const { question, answer, category, difficulty } = this.props;
+    const { question, answer, category, difficulty, rating } = this.props;
     return (
       <div className='Question-holder'>
         <div className='Question'>{question}</div>
@@ -25,6 +25,7 @@ class Question extends Component {
             src={`${category.toLowerCase()}.svg`}
           />
           <div className='difficulty'>Difficulty: {difficulty}</div>
+          <div>Rating : {rating}</div>
           <img
             src='delete.png'
             alt='delete'

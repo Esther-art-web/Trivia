@@ -5,7 +5,7 @@ from flask import Flask, request, abort, jsonify, json
 from flask_cors import CORS
 import random
 
-from models import db, setup_db, Question, Category
+from models import db, setup_db, Question, Category, User
 
 QUESTIONS_PER_PAGE = 10
 
@@ -62,7 +62,7 @@ def create_app(test_config=None):
                 category.insert()
                 new_category_id = category.id
             else:
-                abort()    
+                abort(400)    
         except Exception as e:
             db.session.rollback()
             if isinstance(e, HTTPException):
@@ -113,7 +113,7 @@ def create_app(test_config=None):
             'questions' : questions,
             'totalQuestions' : len(all_questions),
             'categories' : categories,
-            'currentCategory' : ''
+            'currentCategory' : 'Science'
             })
 
 
@@ -180,7 +180,7 @@ def create_app(test_config=None):
             return jsonify({
                 'questions' : res, 
                 'totalQuestions' : len(questions),
-                'currentCategory' : ''
+                'currentCategory' : 'Science'
                 })
         else:     
             try:
@@ -302,6 +302,24 @@ def create_app(test_config=None):
     # one question at a time is displayed, the user is allowed to answer
     # and shown whether they were correct or not.
     # """
+    @app.route('/api/v1.0/users', methods=["POST"])
+    def create_new_user():
+        res={}
+        try:
+            body = request.get_json()
+            print(body)
+            name = body.get('name', 'Anon')
+            score = body.get('score', 0)
+            user = User(name=name, score=score)
+            user.insert()
+            res['name'] = user.name
+            res['score'] = user.score
+        except Exception:
+            db.session.rollback()
+            abort(400)
+        finally:
+            db.session.close()
+        return jsonify({'user': res})    
 
     @app.route('/api/v1.0/')
     def index():

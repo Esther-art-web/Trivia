@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
 import '../stylesheets/QuizView.css';
+import UserForm from './UserForm';
 
 const questionsPerPlay = 5;
 
@@ -16,6 +17,7 @@ class QuizView extends Component {
       currentQuestion: {},
       guess: '',
       forceEnd: false,
+      showUserForm: true
     };
   }
 
@@ -191,9 +193,41 @@ class QuizView extends Component {
       </div>
     );
   }
-
+  addUserName =(e) => {
+    e.preventDefault()
+    $.ajax({
+      url :'/api/v1.0/users',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({
+       name: this.state.user_name,
+       score: this.state.numCorrect
+      }),
+      crossDomain: true,
+      success: (result) => {
+        let user = result.user
+        this.setState({
+          user_name: user.name,
+          score: this.state.numCorrect,
+          showUserForm : false
+        })
+      }
+    });
+    
+  }
   render() {
-    return this.state.quizCategory ? this.renderPlay() : this.renderPrePlay();
+    return( 
+      <div>
+        <p>Now Playing : {this.state.user_name}</p>
+        {this.state.showUserForm? 
+        <UserForm onSubmit= {this.addUserName} onHandleChange = {this.handleChange}/>
+        :
+        <div></div>}
+        {this.state.quizCategory ? this.renderPlay() : this.renderPrePlay()}
+      </div>
+      
+      ) 
   }
 }
 

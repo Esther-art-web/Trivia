@@ -203,6 +203,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['user'])
 
+    # Test for update_user_score pass
+    def test_update_user_score(self):
+        res = self.client().patch('/api/v1.0/users', json={"id":2, "score": 7})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+
+     # Test for update_user_score fail due user not found
+    def test_404_cannot_update_user_score(self):
+        res = self.client().patch('/api/v1.0/users', json={"id":1000, "score": 5})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Not Found')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

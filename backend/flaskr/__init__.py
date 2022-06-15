@@ -26,7 +26,7 @@ def create_app(test_config=None):
     @app.after_request
     def after_request(response):
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, DELETE, PATCH")
         response.headers.add("Access-Control-Allow-Headers", 'Content-Type')
         return response
 
@@ -307,11 +307,11 @@ def create_app(test_config=None):
         res={}
         try:
             body = request.get_json()
-            print(body)
             name = body.get('name', 'Anon')
             score = body.get('score', 0)
             user = User(name=name, score=score)
             user.insert()
+            res['id'] = user.id
             res['name'] = user.name
             res['score'] = user.score
         except Exception:
@@ -319,7 +319,23 @@ def create_app(test_config=None):
             abort(400)
         finally:
             db.session.close()
-        return jsonify({'user': res})    
+        return jsonify({'user': res})   
+
+    @app.route('/api/v1.0/users', methods=["PATCH"])   
+    def update_user_score():
+        try:
+            body = request.get_json()
+            id = body.get('id')
+            score = body.get('score') 
+            user = User.query.get(id)
+            user.score = score
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            abort(404)    
+        finally:
+            db.session.close()     
+        return jsonify({'success': True})
 
     @app.route('/api/v1.0/')
     def index():

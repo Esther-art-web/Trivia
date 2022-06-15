@@ -17,7 +17,9 @@ class QuizView extends Component {
       currentQuestion: {},
       guess: '',
       forceEnd: false,
-      showUserForm: true
+      showUserForm: true,
+      currentUser: null,
+      currentUserScore: 0
     };
   }
 
@@ -88,7 +90,6 @@ class QuizView extends Component {
       showAnswer: true,
     });
   };
-
   restartGame = () => {
     this.setState({
       quizCategory: null,
@@ -140,7 +141,23 @@ class QuizView extends Component {
       </div>
     );
   }
-
+  updateUserScore = () => {
+    $.ajax({
+      url: '/api/v1.0/users',
+      type: 'PATCH',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        id: this.state.currentUser,
+        score: this.state.numCorrect
+      }),
+      xhrFields: {
+        withCredentials: true,
+      },
+      crossDomain: true,
+    })
+    return this.renderFinalScore();
+  }
   evaluateAnswer = () => {
     const formatGuess = this.state.guess
       // eslint-disable-next-line
@@ -174,7 +191,8 @@ class QuizView extends Component {
   renderPlay() {
     return this.state.previousQuestions.length === questionsPerPlay ||
       this.state.forceEnd ? (
-      this.renderFinalScore()
+      // this.renderFinalScore()
+      this.updateUserScore()
     ) : this.state.showAnswer ? (
       this.renderCorrectAnswer()
     ) : (
@@ -193,7 +211,7 @@ class QuizView extends Component {
       </div>
     );
   }
-  addUserName =(e) => {
+  addUser =(e) => {
     e.preventDefault()
     $.ajax({
       url :'/api/v1.0/users',
@@ -208,8 +226,9 @@ class QuizView extends Component {
       success: (result) => {
         let user = result.user
         this.setState({
+          currentUser: user.id,
           user_name: user.name,
-          score: this.state.numCorrect,
+          currentUsercore: this.state.numCorrect,
           showUserForm : false
         })
       }
@@ -221,7 +240,7 @@ class QuizView extends Component {
       <div>
         <p>Now Playing : {this.state.user_name}</p>
         {this.state.showUserForm? 
-        <UserForm onSubmit= {this.addUserName} onHandleChange = {this.handleChange}/>
+        <UserForm onSubmit= {this.addUser} onHandleChange = {this.handleChange}/>
         :
         <div></div>}
         {this.state.quizCategory ? this.renderPlay() : this.renderPrePlay()}

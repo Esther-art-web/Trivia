@@ -109,7 +109,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['question_id'])
 
-    # Test for create_new_question_and_search_question
+    # Test for create_new_question
     # fail due to invalid input
     def test_400_bad_question_request(self):
         res = self.client().post('/api/v1.0/questions', json={})
@@ -119,10 +119,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad Request')
 
-    # Test for create_new_question_and_search_question pass
+    # Test for get_question(s)_by_search pass
     def test_get_questions_by_search(self):
         res = self.client().post(
-            '/api/v1.0/questions', json={'searchTerm': 'discovered'})
+            '/api/v1.0/questions/search', json={'searchTerm': 'discovered'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -130,10 +130,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['totalQuestions'])
         self.assertTrue(data['currentCategory'])
 
-    # Test for create_new_question_and_search_question fail
+    # Test for search_question fail
     def test_404_search_term_not_found(self):
         res = self.client().post(
-            '/api/v1.0/questions', json={'searchTerm': 'asdfg'})
+            '/api/v1.0/questions/search', json={'searchTerm': 'asdfg'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)

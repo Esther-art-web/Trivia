@@ -112,53 +112,60 @@ def create_app(test_config=None):
         return jsonify({'question_id': res_question_id})
 
     @app.route('/api/v1.0/questions', methods=['POST'])
-    def create_new_question_and_search_question():
+    def create_new_question():
         res_question_id = None
         body = request.get_json()
-        if body.get('searchTerm'):
-            search_term = body.get('searchTerm')
-            questions = Question.query.filter(Question.question.ilike(
-                '%'+search_term+'%')).all()
-            res = []
-            current_categories = []
-            if questions:
-                for question in questions:
-                    current_category = question.category
-                    _question = {
-                        'id': question.id,
-                        'question': question.question,
-                        'answer': question.answer,
-                        'difficulty': question.difficulty,
-                        'category': question.category,
-                        'rating': question.rating
-                    }
-                    res.append(_question)
-
-            else:
-                abort(404)
-            return jsonify({
-                'questions': res,
-                'totalQuestions': len(questions),
-                'currentCategory': 'Science'
-                })
-        else:
-            try:
+        question=body.get('question')
+        answer=body.get('answer')
+        category=body.get('category')
+        difficulty=body.get('difficulty')
+        rating=body.get('rating')
+        try:
+            if question and answer and category and difficulty:
                 question = Question(
-                    question=body.get('question'),
-                    answer=body.get('answer'),
-                    category=body.get('category'),
-                    difficulty=body.get('difficulty'),
-                    rating=body.get('rating')
+                    question=question,
+                    answer=answer,
+                    category=category,
+                    difficulty=difficulty,
+                    rating=rating
                     )
                 question.insert()
                 res_question_id = question.id
-            except Exception:
-                db.session.rollback()
-                abort(400)
-            finally:
-                db.session.close()
-            return jsonify({
-                'question_id': res_question_id
+            else:
+                abort(400)    
+        except Exception:
+            db.session.rollback()
+            abort(400)
+        finally:
+            db.session.close()
+        return jsonify({
+            'question_id': res_question_id
+        })
+
+    @app.route('/api/v1.0/questions/search', methods=['POST'])
+    def search_question():
+        body = request.get_json()
+        search_term = body.get('searchTerm')
+        questions = Question.query.filter(Question.question.ilike(
+            '%'+search_term+'%')).all()
+        res = []
+        if questions:
+            for question in questions:
+                _question = {
+                    'id': question.id,
+                    'question': question.question,
+                    'answer': question.answer,
+                    'difficulty': question.difficulty,
+                    'category': question.category,
+                    'rating': question.rating
+                }
+                res.append(_question)
+        else:
+            abort(404)
+        return jsonify({
+            'questions': res,
+            'totalQuestions': len(questions),
+            'currentCategory': 'Science'
             })
 
     @app.route('/api/v1.0/categories/<int:category_id>/questions')
@@ -185,21 +192,18 @@ def create_app(test_config=None):
             'currentCategory': category.type
             })
 
-    def randomChoiceNotInPrevQuestions(prevQuestions, questions):
-        selected_question = random.choice(questions)
+    def randomChoiceNotInPrevQuestions(prevQuestions, quiz_questions):
+        selected_question = random.choice(quiz_questions)
         if prevQuestions:
-            while selected_question.id in prevQuestions:
-                selected_question = random.choice(questions)
-            else:
-                res = {
-                    'id': selected_question.id,
-                    'question': selected_question.question,
-                    'answer': selected_question.answer,
-                    'difficulty': selected_question.difficulty,
-                    'category': selected_question.category,
-                    'rating': selected_question.rating
-                }
-                return res
+            res = {
+                'id': selected_question.id,
+                'question': selected_question.question,
+                'answer': selected_question.answer,
+                'difficulty': selected_question.difficulty,
+                'category': selected_question.category,
+                'rating': selected_question.rating
+            }
+            return res
         else:
             res = {
                 'id': selected_question.id,
@@ -218,21 +222,23 @@ def create_app(test_config=None):
             prev_questions = body.get('previous_questions')
             quiz_category = body.get('quiz_category')
             if quiz_category == "All":
-                all_questions = Question.query.all()
-                if all_questions:
-                    res = randomChoiceNotInPrevQuestions(
-                        prev_questions, all_questions)
+                quiz_questions = Question.query.filter(
+                    ~Question.id.in_(prev_questions)).all()   
+                if quiz_questions:
+                    res = randomChoiceNotInPrevQuestions(prev_questions,
+                        quiz_questions)
                 else:
                     abort(404)
             else:
                 category = Category.query.filter_by(
                     type=quiz_category).one_or_none()
                 if category:
-                    questions_in_category = Question.query.filter_by(
-                        category=category.id).all()
-                    if questions_in_category:
-                        res = randomChoiceNotInPrevQuestions(
-                            prev_questions, questions_in_category)
+                    quiz_questions = Question.query.filter(
+                        Question.category==category.id,
+                        ~Question.id.in_(prev_questions)).all()
+                    if quiz_questions:
+                        res = randomChoiceNotInPrevQuestions(prev_questions,
+                            quiz_questions)
                     else:
                         abort(404)
                 else:

@@ -107,7 +107,7 @@ class QuizView extends Component {
       <div className='quiz-play-holder'>
         <div className='choose-header'>Choose Category</div>
         <div className='category-holder'>
-          <div className='play-category' onClick={this.selectCategory}>
+          <div className='play-category' onClick={()=> this.selectCategory({type:'All'})}>
             ALL
           </div>
           {Object.keys(this.state.categories).map((id) => {
@@ -149,6 +149,7 @@ class QuizView extends Component {
       contentType: 'application/json',
       data: JSON.stringify({
         id: this.state.currentUser,
+        name: this.state.user_name,
         score: this.state.numCorrect
       }),
       xhrFields: {
@@ -238,7 +239,8 @@ class QuizView extends Component {
   render() {
     return( 
       <div>
-        <p>Now Playing : {this.state.user_name}</p>
+        {this.state.user_name?<p>Now Playing : {this.state.user_name}</p>: null}
+        
         {this.state.showUserForm? 
         <UserForm onSubmit= {this.addUser} onHandleChange = {this.handleChange}/>
         :

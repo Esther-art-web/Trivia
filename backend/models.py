@@ -1,19 +1,29 @@
 from email.policy import default
 import os
+from os.path import join, dirname
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 import json
-from flask_migrate import Migrate
+from dotenv import load_dotenv
 
-database_name = 'trivia'
-database_path = 'postgresql://student:student@{}/{}'.format('localhost:5432', database_name)
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+DATABASE_USER = os.getenv('DATABASE_USER')
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD')
+DATABASE_HOST = os.getenv('DATABASE_HOST')
+DATABASE_NAME = os.getenv('DATABASE_NAME')
+
+database_path = 'postgresql://{}:{}@{}/{}'.format(
+    DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_NAME)
 
 db = SQLAlchemy()
 
-"""
-setup_db(app)
-    binds a flask application and a SQLAlchemy service
-"""
+
+# """
+# setup_db(app)
+#     binds a flask application and a SQLAlchemy service
+# """
 def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -21,10 +31,13 @@ def setup_db(app, database_path=database_path):
     db.init_app(app)
     db.create_all()
 
+
 """
 Question
 
 """
+
+
 class Question(db.Model):
     __tablename__ = 'questions'
 
@@ -60,16 +73,19 @@ class Question(db.Model):
             'answer': self.answer,
             'category': self.category,
             'difficulty': self.difficulty,
-            'rating' : self.rating
+            'rating': self.rating
             }
 
     def __repr__(self):
-        return f'<id: {self.id}, category: {self.category}>'        
+        return f'<id: {self.id}, category: {self.category}>'
+
 
 """
 Category
 
 """
+
+
 class Category(db.Model):
     __tablename__ = 'categories'
 
@@ -82,23 +98,23 @@ class Category(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
-    
+
     def format(self):
         return {
             'id': self.id,
             'type': self.type
             }
 
-    def __repr__(self) :
-        return f'< id : {self.id}, type: {self.type} >'     
+    def __repr__(self):
+        return f'< id: {self.id}, type: {self.type} >'
 
 
 class User(db.Model):
     __tablename__ = 'users'
 
-    id =db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(), nullable = True, default='Anon')   
-    score = db.Column(db.Integer, nullable= True, default=0)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=True, default='Anon')
+    score = db.Column(db.Integer, nullable=True, default=0)
 
     def __init__(self, name, score):
         self.name = name
@@ -107,6 +123,6 @@ class User(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
-    
-    def __repr__(self) :
-        return f'< id : {self.id}, name: {self.name}, score: {self.score} >'
+
+    def __repr__(self):
+        return f'< id: {self.id}, name: {self.name}, score: {self.score} >'

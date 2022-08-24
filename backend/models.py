@@ -46,7 +46,7 @@ class Question(db.Model):
     answer = Column(String, nullable=False)
     category = Column(Integer, nullable=False)
     difficulty = Column(Integer, nullable=False)
-    rating = Column(Integer, nullable=True)
+    rating = Column(Integer, nullable=True, default=1)
 
     def __init__(self, question, answer, category, difficulty, rating):
         self.question = question

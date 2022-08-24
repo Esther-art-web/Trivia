@@ -41,6 +41,7 @@ class FormView extends Component {
         answer: this.state.answer,
         difficulty: this.state.difficulty,
         category: this.state.category,
+        rating: 1
       }),
       xhrFields: {
         withCredentials: true,
